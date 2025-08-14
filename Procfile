@@ -1,1 +1,2 @@
-web: gunicorn heartycore.wsgi:application --bind 0.0.0.0:$PORT
+web: gunicorn HeartyCharm.wsgi --log-file -
+ 
