@@ -3,6 +3,8 @@ from .models import Category, Product
 from .forms import CustomOrderForm
 from django.contrib import messages
 from .cart import Cart
+from django.core.paginator import Paginator
+
 
 def shop_home(request):
     categories = Category.objects.all()
@@ -12,14 +14,19 @@ def shop_home(request):
 
 def category_products(request, slug):
     category = get_object_or_404(Category, slug=slug)
-    
+    product_list = Product.objects.filter(category=category, stock__gt=0)
+
+    paginator = Paginator(product_list, 8)  # products per page
+    page_number = request.GET.get('page')
+    products = paginator.get_page(page_number)
+
     # If this is the "custom orders" category, redirect to a form
     if category.slug == "gift-custom-orders":
-        return redirect('custom_order_form')  # we'll create this URL next
-
-
-    products = category.products.filter(stock__gt=0)
-
+        return redirect('custom_order_form')   
+    context = {
+        'category': category,
+        'products': products,
+    }
     return render(request, 'products/category_products.html', {
         'category': category,
         'products': products
@@ -81,3 +88,5 @@ def update_cart(request, product_id, action):
 def cart_detail(request):
     cart = Cart(request)
     return render(request, 'products/cart.html', {'cart_items': cart.get_items(), 'total': cart.get_total_price()})
+
+ 
