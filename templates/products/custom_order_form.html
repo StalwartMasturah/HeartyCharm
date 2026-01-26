@@ -1,0 +1,30 @@
+
+{% load static %}
+<h2 class="text-center my-4">Custom Order / Gift Request</h2>
+
+<form method="post" class="container" style="max-width: 600px;">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Submit Order</button>
+</form>
+<style>
+    form {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        color: #ec709a;
+    }
+    .btn-primary {
+        background-color: #ec709a;
+        border: none;
+    }
+    .btn-primary:hover {
+        background-color: #d65c82;
+    }
+</style>
+
