@@ -207,7 +207,7 @@ def verify_payment(request):
         order.payment_status = 'paid'
         order.save()
 
-        request.session['cart'] = {}  # clear cart
+        request.session['cart'] = {} 
 
         return redirect('payment_success')
 
