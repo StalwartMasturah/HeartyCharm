@@ -1,9 +1,15 @@
 from django.shortcuts import render, get_object_or_404,redirect,render
-from .models import Category, Product
+from .models import Category, Product, Order
+from .forms import CheckoutForm
 from .forms import CustomOrderForm
 from django.contrib import messages
 from .cart import Cart
 from django.core.paginator import Paginator
+import uuid
+from django.conf import settings
+from django.urls import reverse
+import requests
+
 
 
 def shop_home(request):
@@ -45,7 +51,7 @@ def custom_order_form(request):
             # Here you can save the order to the database or send an email
             # For now, we'll just show a success message
             messages.success(request, "Your custom order has been submitted!")
-            return redirect('shop')  # redirect back to shop
+            return redirect('products')  # redirect back to products
     else:
         form = CustomOrderForm()
 
@@ -89,4 +95,125 @@ def cart_detail(request):
     cart = Cart(request)
     return render(request, 'products/cart.html', {'cart_items': cart.get_items(), 'total': cart.get_total_price()})
 
+def checkout(request):
+    cart = request.session.get('cart', {})
+    if not cart:
+        return redirect('shop')
+
+    total = 0
+    for product_id, item in cart.items():
+        product = Product.objects.get(id=product_id)
+        total += product.price * item['quantity']
+
+    if request.method == 'POST':
+        form = CheckoutForm(request.POST)
+        if form.is_valid():
+            order = Order.objects.create(
+                full_name=form.cleaned_data['full_name'],
+                phone=form.cleaned_data['phone'],
+                address=form.cleaned_data['address'],
+                total_price=total
+            )
+
+            # redirect to payment
+            return redirect('start_payment', order_id=order.id)
+    else:
+        form = CheckoutForm()
+
+    return render(request, 'products/checkout.html', {
+        'form': form,
+        'total': total
+    })
  
+ 
+# def cart_view(request):
+#     cart = request.session.get('cart', {})
+#     items = []
+#     total = 0
+
+#     for product_id, item in cart.items():
+#         product = Product.objects.get(id=product_id)
+#         quantity = item['quantity']
+#         price = product.price * quantity
+#         total += price
+
+#         items.append({
+#             'product': product,
+#             'quantity': quantity,
+#             'price': price
+#         })
+
+#     form = CheckoutForm()
+
+#     return render(request, 'products/cart.html', {
+#         'items': items,
+#         'total': total,
+#         'form': form,
+      
+#     })
+from .cart import Cart
+
+def cart_view(request):
+    cart = Cart(request)
+
+    return render(request, 'products/cart.html', {
+        'cart_items': cart.get_items(),
+        'total': cart.get_total_price(),
+    })
+
+# def cart_view(request):
+#     cart = request.session.get('cart', {})
+
+#     if request.method == 'POST':
+#         form = CheckoutForm(request.POST)
+#         if form.is_valid():
+#             # redirect to payment verification page
+#             return redirect('verify_payment')
+
+
+def start_payment(request, order_id):
+    order = Order.objects.get(id=order_id)
+
+    reference = str(uuid.uuid4())
+    order.payment_reference = reference
+    order.save()
+
+    amount = int(order.total_price * 100) 
+
+    context = {
+        'order': order,
+        'paystack_public_key': settings.PAYSTACK_PUBLIC_KEY,
+        'reference': reference,
+        'amount': amount,
+    }
+
+    return render(request, 'products/paystack.html', context)
+
+  
+
+def verify_payment(request):
+    reference = request.GET.get('reference')
+
+    url = f"https://api.paystack.co/transaction/verify/{reference}"
+    headers = {
+        "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}"
+    }
+
+    response = requests.get(url, headers=headers)
+    result = response.json()
+
+    if result['status'] and result['data']['status'] == 'success':
+        order = Order.objects.get(payment_reference=reference)
+        order.payment_status = 'paid'
+        order.save()
+
+        request.session['cart'] = {}  # clear cart
+
+        return redirect('payment_success')
+
+    return redirect('checkout')
+
+
+def payment_success(request):
+    return render(request, 'products/payment_success.html')
+

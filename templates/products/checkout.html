@@ -1,0 +1,173 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout - Hearty's Charms</title>
+
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Custom CSS -->
+<link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+<style>
+/* --- Header --- */
+.header {
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 15px 0;
+    z-index: 1000;
+}
+.logo h1.sitename {
+    font-family: 'Georgia', serif;
+    font-weight: 700;
+    font-size: 1.8rem;
+    color: #ec709a;
+    margin: 0;
+}
+.logo span { color: #ec709a; font-size: 2rem; font-weight: bold; margin-left: 2px; }
+
+/* --- Checkout Card --- */
+.checkout-card {
+    max-width: 500px;
+    margin: 2rem auto;
+    padding: 2rem;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    background-color: #fff;
+}
+
+.checkout-card h3 {
+    color: #ec709a;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.checkout-card .btn {
+    margin-top: 1rem;
+}
+
+/* --- Back / Shop Buttons --- */
+.btn-secondary {
+    background-color: #f8f9fa;
+    color: #ec709a;
+    border: 1px solid #ec709a;
+}
+
+.btn-secondary:hover {
+    background-color: #ec709a;
+    color: #fff;
+}
+
+/* --- Responsive --- */
+@media (max-width: 576px) {
+    .checkout-card {
+        margin: 1rem;
+        padding: 1rem;
+    }
+}
+</style>
+</head>
+<body class="index-page">
+
+<!-- Header -->
+<header id="header" class="header d-flex align-items-center sticky-top">
+    <div class="container d-flex align-items-center justify-content-between">
+        <a href="{% url 'home' %}" class="logo d-flex align-items-center me-auto me-xl-0">
+            <h1 class="sitename">Hearty's Charms</h1><span>.</span>
+        </a>
+        <nav id="navmenu" class="navmenu">
+           <ul class="d-flex gap-3 list-unstyled mb-0">
+            <li><a href="{% url 'category_products' 'beads' %}">Beads</a></li>
+            <li><a href="{% url 'category_products' 'wireworks' %}">Wireworks</a></li>
+            <li><a href="{% url 'category_products' 'charm-accessories' %}">Charm Accessories</a></li>
+            <li><a href="{% url 'custom_order_form' %}">Customized Orders</a></li>
+           </ul>
+        </nav>
+    </div>
+    <style> 
+    .form-control:focus {
+    border-color: #ec709a;
+    box-shadow: 0 0 0 0.15rem rgba(236, 112, 154, 0.35);
+    outline: none;
+}
+
+      ::placeholder {
+      font-style: italic;
+      font-size: 0.85rem;
+      font-weight: 300;
+      color: rgba(0, 0, 0, 0.45);
+        }
+
+      /* Browser support */
+      ::-webkit-input-placeholder {
+          font-style: italic;
+          font-size: 0.85rem;
+          font-weight: 300;
+          color: rgba(0, 0, 0, 0.45);
+      }
+
+      :-ms-input-placeholder {
+          font-style: italic;
+          font-size: 0.85rem;
+          font-weight: 300;
+          color: rgba(0, 0, 0, 0.45);
+      }
+
+      ::-ms-input-placeholder {
+          font-style: italic;
+          font-size: 0.85rem;
+          font-weight: 300;
+          color: rgba(0, 0, 0, 0.45);
+      }
+
+    </style>
+</header>
+
+
+<!-- Checkout Form -->
+<div class="checkout-card">
+    <h3>Checkout</h3>
+
+    <form id="checkout-form" method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <h4 class="text-center">Total: ₦{{ total|floatformat:2 }}</h4>
+
+        <button type="button" class="btn btn-success w-100" onclick="payWithPaystack()">
+            Pay Now
+        </button>
+
+        <div class="d-flex justify-content-between mt-3">
+            <a href="{% url 'cart_view' %}" class="btn btn-secondary">Back to Cart</a>
+            <a href="{% url 'category_products' 'beads' %}" class="btn btn-secondary">Continue Shopping</a>
+        </div>
+    </form>
+</div>
+
+<!-- Paystack Script -->
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script>
+function payWithPaystack(){
+    let handler = PaystackPop.setup({
+        key: "{{ paystack_public_key }}",
+        email: "{{ request.user.email }}",
+        amount: "{{ total|floatformat:2|cut:'.' }}00",
+        callback: function(response){
+            document.getElementById("checkout-form").submit();
+        },
+        onClose: function(){
+            alert('Payment window closed. You can retry.');
+        }
+    });
+    handler.openIframe();
+}
+</script>
+
+</body>
+</html>

@@ -40,7 +40,12 @@
             font-weight: bold;
             margin-left: 2px;
         }
-        
+        .btn-outline-secondary:hover {
+            background-color: #ec709a;
+            border-color: #ec709a;
+          color: #fff;
+     }
+
     </style>
     <!-- Header -->
     <header id="header" class="header d-flex align-items-center sticky-top">
@@ -48,6 +53,10 @@
             <a href="{% url 'home' %}" class="logo d-flex align-items-center me-auto me-xl-0">
                 <h1 class="sitename">Hearty's Charms</h1><span>.</span>
             </a>
+            <div class="d-flex gap-2 flex-wrap">
+            <a href="{% url 'category_products' 'beads' %}" class="btn btn-outline-secondary btn-sm">
+            ← Continue Shopping
+        </a>
         </div>
     </header>
     <div class="container py-5">
@@ -103,8 +112,11 @@
      </table>
 
     <!-- Checkout button -->
-    <a href="#" class="btn btn-brand">Proceed to Checkout</a>
+     <form method="GET" action="{% url 'checkout'  %}">
+    <button type="submit">Pay Now</button>
+    </form>
 
+ 
     {% else %}
     <p>Your cart is empty.</p>
     {% endif %}

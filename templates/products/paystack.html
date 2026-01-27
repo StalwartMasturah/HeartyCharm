@@ -1,0 +1,30 @@
+{% extends "home.html" %}
+{% block content %}
+
+<h3 class="text-center mb-4">Complete Payment</h3>
+
+<button class="btn btn-success w-100" onclick="payWithPaystack()">
+    Pay ₦{{ order.total_price }}
+</button>
+
+<script src="https://js.paystack.co/v1/inline.js"></script>
+
+<script>
+function payWithPaystack(){
+  let handler = PaystackPop.setup({
+    key: "{{ paystack_public_key }}",
+    email: "customer@example.com",
+    amount: "{{ amount }}",
+    ref: "{{ reference }}",
+    callback: function(response){
+      window.location.href = "{% url 'verify_payment' %}?reference=" + response.reference;
+    },
+    onClose: function(){
+      alert('Payment cancelled');
+    }
+  });
+  handler.openIframe();
+}
+</script>
+
+{% endblock %}

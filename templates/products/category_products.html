@@ -142,7 +142,19 @@
             <a href="{% url 'home' %}" class="logo d-flex align-items-center me-auto me-xl-0">
                 <h1 class="sitename">Hearty's Charms</h1><span>.</span>
             </a>
+            
+         <nav id="navmenu" class="navmenu">
+           <ul>
+            <li><a href="{% url 'category_products' 'beads' %}">Beads</a></li>
+            <li><a href="{% url 'category_products' 'wireworks' %}">Wireworks</a></li>
+            <li><a href="{% url 'category_products' 'charm-accessories' %}">Charm Accessories</a></li>
+            <li><a href="{% url 'custom_order_form' %}">Customized Orders</a></li>
+          </ul>
+          <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+         </nav>
+
         </div>
+
     </header>
 
     <!-- Products Section -->

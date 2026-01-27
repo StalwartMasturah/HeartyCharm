@@ -29,3 +29,86 @@ class CustomOrderForm(forms.Form):
     ], required=False)
     
     
+class CheckoutForm(forms.Form):
+    full_name = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Full Name'
+        })
+    )
+
+    phone = forms.RegexField(
+    regex=r'^\d{11}$',
+    max_length=11,
+    error_messages={
+        'invalid': 'Enter a valid 11-digit phone number'
+    },
+    widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Phone Number',
+        'type': 'tel',
+        'inputmode': 'numeric',
+        'pattern': '[0-9]*'
+    })
+)
+
+    additional_notes = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'placeholder': 'Additional Notes you want us to consider regarding your orders, if you want a diffrent color or reduce size (optional)',
+            'rows': 3
+        }),
+        required=False
+    )
+    street = forms.CharField(
+        max_length=255,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Street Address (e.g. 12 Allen Avenue)'
+        })
+    )
+
+    town = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Town / Area (e.g. Ikeja)'
+        })
+    )
+
+    city = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': '(e.g. Lagos)'
+        })
+    )
+    landmark = forms.CharField(
+        max_length=255,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Nearest Landmark (optional)'
+        })
+    )
+
+    postal_code = forms.RegexField(
+        regex=r'^\d{5,6}$',
+        error_messages={
+            'invalid': 'Enter a valid postal code'
+        },
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Postal Code',
+            'inputmode': 'numeric',
+            'pattern': '[0-9]*'
+        })
+    )
+    country = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': '(e.g. Nigeria)'
+        })
+    )
