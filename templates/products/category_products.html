@@ -1,0 +1,242 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ category.name }} - Products</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    {% block style %}{% endblock %}
+    {% block css %}{% endblock %}
+    
+    <style>
+        /* --- Header Styling --- */
+        .header {
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 15px 0;
+            z-index: 1000;
+        }
+
+        .logo h1.sitename {
+            font-family: 'Georgia', serif;
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: #ec709a; /* brand color */
+            margin: 0;
+        }
+
+        .logo span {
+            color: #ec709a; /* brand color */
+            font-size: 2rem;
+            font-weight: bold;
+            margin-left: 2px;
+        }
+
+        /* --- Page Title --- */
+        .container h2 {
+            font-weight: 700;
+            color: #ec709a; /* brand color */
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            border-bottom: 2px solid #ec709a; /* brand color underline */
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+
+        /* --- Product Cards --- */
+        .card {
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-radius: 15px;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+
+        .card img {
+            width: 100%;
+            height: 200px; /* fixed height */
+            object-fit: cover;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+        }
+
+        .card-body p.card-text {
+            font-size: 1rem;
+            margin: 0.5rem 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* 2 lines max */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-body p.text-muted {
+            font-size: 0.875rem;
+        }
+
+        /* --- Brand-colored buttons --- */
+        .btn-brand {
+            background-color: #ec709a; /* brand color */
+            color: #fff;
+            border: none;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .btn-brand:hover {
+            background-color: #d95c86; /* slightly darker */
+            transform: translateY(-2px);
+            color: #fff;
+        }
+
+        .btn-outline-brand {
+            border-color: #ec709a;
+            color: #ec709a;
+            transition: all 0.3s;
+        }
+
+        .btn-outline-brand:hover {
+            background-color: #ec709a;
+            color: #fff;
+            border-color: #ec709a;
+        }
+
+        .page-item.active .page-link {
+        background-color: #ec709a;
+        border-color: #ec709a;
+        color: #fff;
+        }
+
+        .page-link {
+        color: #ec709a;
+        }
+
+       .page-link:hover {
+        background-color: #ec709a;
+        color: #fff;
+        }
+
+        /* --- Responsive adjustments --- */
+        @media (max-width: 576px) {
+            .card img {
+                height: 180px;
+            }
+        }
+    </style>
+</head>
+<body class="index-page">
+
+    <!-- Header -->
+    <header id="header" class="header d-flex align-items-center sticky-top">
+        <div class="container d-flex align-items-center justify-content-between">
+            <a href="{% url 'home' %}" class="logo d-flex align-items-center me-auto me-xl-0">
+                <h1 class="sitename">Hearty's Charms</h1><span>.</span>
+            </a>
+            
+         <nav id="navmenu" class="navmenu">
+           <ul>
+            <li><a href="{% url 'category_products' 'beads' %}">Beads</a></li>
+            <li><a href="{% url 'category_products' 'wireworks' %}">Wireworks</a></li>
+            <li><a href="{% url 'category_products' 'charm-accessories' %}">Charm Accessories</a></li>
+            <li><a href="{% url 'custom_order_form' %}">Customized Orders</a></li>
+          </ul>
+          <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+         </nav>
+
+        </div>
+
+    </header>
+
+    <!-- Products Section -->
+    <div class="container py-5">
+        <h2>{{ category.name }}</h2>
+        <div class="row g-4">
+            {% for product in products %}
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="card shadow-sm h-100 d-flex flex-column">
+                    <img src="{{ product.image.url }}" class="card-img-top rounded" alt="{{ product.name }}">
+                    <div class="card-body text-center d-flex flex-column">
+                        <p class="card-text fw-bold">{{ product.name }}</p>
+                        <p class="text-muted">₦{{ product.price|floatformat:2 }}</p>
+                        <p class="text-muted">Size: {{ product.size }}</p>    
+                        <div class="mt-auto">
+                            {% if product.has_options %}
+                                <a href="#" class="btn btn-outline-brand btn-sm w-100">
+                                    Select Options
+                                </a>
+                            {% else %}
+                                <form action="{% url 'add_to_cart' product.id %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-brand btn-sm w-100">Add to Cart</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <!-- Pagination -->
+{% if products.has_other_pages %}
+<div class="d-flex justify-content-center mt-5">
+    <nav aria-label="Product pagination">
+        <ul class="pagination">
+
+            <!-- Previous -->
+            {% if products.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ products.previous_page_number }}">
+                        ‹ Previous
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">‹ Previous</span>
+                </li>
+            {% endif %}
+
+            <!-- Page Numbers -->
+            {% for page in products.paginator.page_range %}
+                {% if products.number == page %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ page }}</span>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page }}">{{ page }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            <!-- Next -->
+            {% if products.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ products.next_page_number }}">
+                        Next ›
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Next ›</span>
+                </li>
+            {% endif %}
+
+        </ul>
+    </nav>
+</div>
+{% endif %}
+
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
