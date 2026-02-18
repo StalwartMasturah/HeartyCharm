@@ -8,16 +8,14 @@ https://docs.djangoproject.com/en/5.2/howto/deployment/wsgi/
 """
 
 import os
-
 from django.core.wsgi import get_wsgi_application
-
-from django.core.wsgi import get_wsgi_application
-
 from whitenoise import WhiteNoise
 
-
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'heartycore.settings')
- 
+
 application = get_wsgi_application()
 
-application = WhiteNoise(application, root=os.path.join(os.path.dirname(os.path.dirname(__file__)), 'media'), prefix='media')
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(_file_)))
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+application = WhiteNoise(application, root=MEDIA_ROOT, prefix='media')  
