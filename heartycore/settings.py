@@ -33,8 +33,6 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = ['*']
 # CCSRF TRUSTED ORIGINS
 CSRF_TRUSTED_ORIGINS = ['https://*.railway.app']
-
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -142,3 +140,5 @@ PAYSTACK_PUBLIC_KEY = os.environ.get("PAYSTACK_PUBLIC_KEY")
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+ 
